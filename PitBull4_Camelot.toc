@@ -1,0 +1,15 @@
+## Interface: 16001
+## Title: PitBull Unit Frames 4.0
+## Title-zhCN: PitBull 单位框体 4.0 (Forever)
+## Notes: Dog-themed unit frames. Woof. Arf. Yip.
+## Notes-zhCN: 以狗为主题的单位框架。呜呜。汪汪。嗷呜。
+## Notes-zhTW: Dog-themed unit frames. Woof. Arf. Yip.
+## Author: ckknight, Shekfi, Nebula (Forever port: pitbull4.2)
+## SavedVariables: PitBull4DB
+## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibDBIcon-1.0, LibDualSpec-1.0, Clique, Masque
+## Version: 4.3-forever-alpha1
+## IconTexture: Interface\AddOns\PitBull4\pitbull.tga
+
+libs.xml
+load.xml
+modules_Camelot.xml
