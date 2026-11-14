@@ -48,16 +48,23 @@ local function get_anchor_points(anchor, side)
 end
 
 local function apply_button_style(button, size, frame)
-	button:SetSize(size, size)
+	if not button then return end
+	if button.IsForbidden and button:IsForbidden() then return end
+	if button._pb4_styled_size == size then return end
+
+	local ok = pcall(button.SetSize, button, size, size)
+	if not ok then return end
+	button._pb4_styled_size = size
+
 	local font_path = GameFontNormal and select(1, GameFontNormal:GetFont()) or STANDARD_TEXT_FONT
 	local time_size = math.max(9, math.floor(size * 0.42))
 	local count_size = math.max(9, math.floor(size * 0.45))
 
-	if button.Time then
-		button.Time:SetFont(font_path, time_size, "OUTLINE")
+	if button.Time and not (button.Time.IsForbidden and button.Time:IsForbidden()) then
+		pcall(button.Time.SetFont, button.Time, font_path, time_size, "OUTLINE")
 	end
-	if button.Count then
-		button.Count:SetFont(font_path, count_size, "OUTLINE")
+	if button.Count and not (button.Count.IsForbidden and button.Count:IsForbidden()) then
+		pcall(button.Count.SetFont, button.Count, font_path, count_size, "OUTLINE")
 	end
 end
 
@@ -100,11 +107,18 @@ local function create_aura_button_init(container, is_buff, frame)
 			button:SetApplicationCount(count)
 		end
 
+		local show_builtin_cd = _G.OmniCC ~= nil or (GetCVarBool and GetCVarBool("countdownForCooldowns"))
 		local time = textParent:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
-		time:SetPoint("TOP", 0, -1)
+		time:SetPoint("CENTER", 0, 0)
 		button.Time = time
-		if button.SetDurationText then
-			button:SetDurationText(time)
+		if show_builtin_cd then
+			time:Hide()
+		else
+			cooldown:SetHideCountdownNumbers(true)
+			cooldown.noCooldownCount = true
+			if button.SetDurationText then
+				button:SetDurationText(time)
+			end
 		end
 
 		apply_button_style(button, size, frame)
@@ -198,7 +212,7 @@ local function configure_container_layout(container, frame, db, is_buff)
 	-- Resize any already-created child aura buttons when user tweaks PitBull4 options
 	for i = 1, select("#", container:GetChildren()) do
 		local child = select(i, container:GetChildren())
-		if child and child.Icon then
+		if child and not (child.IsForbidden and child:IsForbidden()) and child.Icon then
 			apply_button_style(child, size, frame)
 		end
 	end
