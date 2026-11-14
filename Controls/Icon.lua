@@ -17,6 +17,10 @@ function Icon:SetSpriteSheetCell(...)
 	self.texture:SetSpriteSheetCell(...)
 end
 
+function Icon:SetAtlas(atlas, useAtlasSize, ...)
+	self.texture:SetAtlas(atlas, useAtlasSize, ...)
+end
+
 PitBull4.Controls.MakeNewControlType("Icon", "Button", function(control)
 	-- onCreate
 	control:EnableMouse(false)
@@ -35,5 +39,11 @@ end, function(control)
 	-- onRetrieve
 end, function(control)
 	-- onDelete
+	control.texture:SetTexture(nil)
+	if control.texture.ResetTexCoord then
+		control.texture:ResetTexCoord()
+	else
+		control.texture:SetTexCoord(0, 1, 0, 1)
+	end
 	control:SetToDefaults()
 end)

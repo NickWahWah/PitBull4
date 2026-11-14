@@ -58,6 +58,9 @@ local function get_aura_list(list, unit, db, is_buff, frame)
 	-- Loop through the auras
 	local index = 1
 	local ok, auras = pcall(GetUnitAuras, unit, filter, max_auras, sort_rule, sort_direction)
+	if not ok then
+		ok, auras = pcall(GetUnitAuras, unit, filter, max_auras)
+	end
 	if ok and auras then
 		for _, entry in next, auras do
 			entry.index = index
@@ -241,7 +244,7 @@ local function set_aura(frame, db, aura_controls, aura, i, is_friend)
 		end
 	end
 
-	if db.cooldown[rule] then
+	if db.cooldown[rule] and control.duration then
 		control.cooldown:SetCooldownFromDurationObject(control.duration, true)
 	else
 		control.cooldown:Hide()

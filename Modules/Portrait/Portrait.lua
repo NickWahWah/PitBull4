@@ -179,7 +179,7 @@ end
 
 
 PitBull4_Portrait:SetLayoutOptionsFunction(function(self)
-	return 'color', {
+	local args = { 'color', {
 		type = 'color',
 		name = L["Background color"],
 		desc = L["Color that the background behind the portrait should be."],
@@ -274,5 +274,17 @@ PitBull4_Portrait:SetLayoutOptionsFunction(function(self)
 		disabled = function(info)
 			return PitBull4.Options.GetLayoutDB(self).style ~= "three_dimensional"
 		end,
-	}
+	} }
+
+	local capsule = PitBull4:GetModule("CapsuleSkin", true)
+	if capsule and capsule.GetPortraitLayoutOptions then
+		local function append_extra(...)
+			for i = 1, select('#', ...) do
+				args[#args + 1] = select(i, ...)
+			end
+		end
+		append_extra(capsule:GetPortraitLayoutOptions())
+	end
+
+	return unpack(args)
 end)

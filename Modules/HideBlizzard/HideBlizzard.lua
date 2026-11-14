@@ -130,6 +130,12 @@ function hiders:player()
 	PlayerFrame:SetDontSavePosition(true)
 
 	hook_frames(false, PetFrame) -- this should be parented to PlayerFrame, but people say it has started showing again?
+	if _G.PetFrame and _G.PetFrameHappiness then
+		-- Keep Blizzard's PetFrameHappiness updated while PetFrame remains hidden inside hidden_frame.
+		pcall(_G.PetFrame.RegisterEvent, _G.PetFrame, "UNIT_HAPPINESS")
+		pcall(_G.PetFrame.RegisterEvent, _G.PetFrame, "UNIT_PET")
+		pcall(_G.PetFrame.RegisterEvent, _G.PetFrame, "PET_UI_UPDATE")
+	end
 end
 
 if ClassicExpansionAtLeast(LE_EXPANSION_CATACLYSM) then

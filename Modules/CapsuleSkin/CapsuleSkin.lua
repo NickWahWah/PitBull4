@@ -608,6 +608,274 @@ function PitBull4_CapsuleSkin:OnDisable()
 	end
 end
 
+function PitBull4_CapsuleSkin:GetPortraitLayoutOptions()
+	local capsule = self
+	local function capsule_hidden()
+		return not capsule:IsEnabled()
+	end
+	local function capsule_disabled()
+		return not capsule:IsEnabled() or not PitBull4.Options.GetLayoutDB(capsule).enabled
+	end
+
+	return 'capsule_portrait_header', {
+		type = 'header',
+		name = L["Capsule portrait & dragon"],
+		hidden = capsule_hidden,
+		order = 150,
+	},
+	'mask_portrait', {
+		type = 'toggle',
+		name = L["Circular 2D portrait mask"],
+		desc = L["Clip 2D or class portraits into a circle (3D models cannot be clipped by MaskTexture)."],
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).mask_portrait
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).mask_portrait = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = capsule_disabled,
+		order = 151,
+	},
+	'portrait_border', {
+		type = 'toggle',
+		name = L["Portrait ring border"],
+		desc = L["Draw an extra circular border ring around the 2D portrait (off by default to avoid overlapping the capsule border)."],
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).portrait_border
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).portrait_border = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			return capsule_disabled() or not PitBull4.Options.GetLayoutDB(capsule).mask_portrait
+		end,
+		order = 152,
+	},
+	'floating_portrait', {
+		type = 'toggle',
+		name = L["Floating circular portrait"],
+		desc = L["Extend bars 100% behind the portrait and float the circular portrait on top (Blizzard-style chest-up framing)."],
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).floating_portrait
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).floating_portrait = value
+			local layout = PitBull4.Options.GetCurrentLayout()
+			for frame in PitBull4:IterateFramesForLayout(layout) do
+				frame:UpdateLayout(false)
+			end
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = capsule_disabled,
+		order = 153,
+	},
+	'portrait_scale', {
+		type = 'range',
+		name = L["Portrait diameter"],
+		desc = L["Set the circular portrait diameter relative to the frame height (110% is recommended)."],
+		min = 0.60,
+		max = 2.00,
+		step = 0.05,
+		isPercent = true,
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).portrait_scale or 1.10
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).portrait_scale = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			return capsule_disabled() or not PitBull4.Options.GetLayoutDB(capsule).floating_portrait
+		end,
+		order = 154,
+	},
+	'portrait_x', {
+		type = 'range',
+		name = L["Portrait X offset"],
+		desc = L["Fine-tune the horizontal position of the floating portrait."],
+		min = -30,
+		max = 30,
+		step = 1,
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).portrait_x or 0
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).portrait_x = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			return capsule_disabled() or not PitBull4.Options.GetLayoutDB(capsule).floating_portrait
+		end,
+		order = 155,
+	},
+	'portrait_y', {
+		type = 'range',
+		name = L["Portrait Y offset"],
+		desc = L["Fine-tune the vertical position of the floating portrait."],
+		min = -30,
+		max = 30,
+		step = 1,
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).portrait_y or 0
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).portrait_y = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			return capsule_disabled() or not PitBull4.Options.GetLayoutDB(capsule).floating_portrait
+		end,
+		order = 156,
+	},
+	'elite_dragon', {
+		type = 'toggle',
+		name = L["Elite / Rare dragon overlay"],
+		desc = L["Show Blizzard's gold or silver dragon frame around the portrait for elite, rare, or boss units."],
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).elite_dragon
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).elite_dragon = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = capsule_disabled,
+		order = 157,
+	},
+	'dragon_style', {
+		type = 'select',
+		name = L["Dragon style"],
+		desc = L["Choose automatic unit classification detection or force a specific dragon frame for this layout."],
+		values = {
+			auto = L["Auto (elite / rare / player)"],
+			gold = L["Always gold dragon"],
+			winged_gold = L["Always winged gold dragon (boss)"],
+			silver = L["Always silver dragon"],
+			none = L["Off"],
+		},
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).dragon_style or "auto"
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).dragon_style = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			return capsule_disabled() or not PitBull4.Options.GetLayoutDB(capsule).elite_dragon
+		end,
+		order = 158,
+	},
+	'player_dragon', {
+		type = 'toggle',
+		name = L["Show gold dragon on player"],
+		desc = L["When Dragon style is Auto, also display a gold dragon on the player's own portrait."],
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).player_dragon
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).player_dragon = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			local ldb = PitBull4.Options.GetLayoutDB(capsule)
+			return capsule_disabled() or not ldb.elite_dragon or (ldb.dragon_style and ldb.dragon_style ~= "auto")
+		end,
+		order = 159,
+	},
+	'dragon_scale', {
+		type = 'range',
+		name = L["Dragon scale"],
+		desc = L["Adjust the overall scale of the elite/rare dragon frame."],
+		min = 0.5,
+		max = 2.0,
+		step = 0.05,
+		isPercent = true,
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).dragon_scale or 1.0
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).dragon_scale = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			local ldb = PitBull4.Options.GetLayoutDB(capsule)
+			return capsule_disabled() or not ldb.elite_dragon or ldb.dragon_style == "none"
+		end,
+		order = 160,
+	},
+	'dragon_x', {
+		type = 'range',
+		name = L["Dragon X offset"],
+		desc = L["Fine-tune the horizontal offset of the dragon frame (positive = right, negative = left)."],
+		min = -40,
+		max = 40,
+		step = 1,
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).dragon_x or 0
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).dragon_x = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			local ldb = PitBull4.Options.GetLayoutDB(capsule)
+			return capsule_disabled() or not ldb.elite_dragon or ldb.dragon_style == "none"
+		end,
+		order = 161,
+	},
+	'dragon_y', {
+		type = 'range',
+		name = L["Dragon Y offset"],
+		desc = L["Fine-tune the vertical offset of the dragon frame (positive = up, negative = down)."],
+		min = -40,
+		max = 40,
+		step = 1,
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).dragon_y or 0
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).dragon_y = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			local ldb = PitBull4.Options.GetLayoutDB(capsule)
+			return capsule_disabled() or not ldb.elite_dragon or ldb.dragon_style == "none"
+		end,
+		order = 162,
+	},
+	'dragon_flip', {
+		type = 'toggle',
+		name = L["Flip dragon horizontally"],
+		desc = L["Mirror the dragon frame left/right if its facing direction is reversed."],
+		get = function(info)
+			return PitBull4.Options.GetLayoutDB(capsule).dragon_flip
+		end,
+		set = function(info, value)
+			PitBull4.Options.GetLayoutDB(capsule).dragon_flip = value
+			PitBull4.Options.UpdateFrames(capsule)
+		end,
+		hidden = capsule_hidden,
+		disabled = function(info)
+			local ldb = PitBull4.Options.GetLayoutDB(capsule)
+			return capsule_disabled() or not ldb.elite_dragon or ldb.dragon_style == "none"
+		end,
+		order = 163,
+	}
+end
+
 PitBull4_CapsuleSkin:SetLayoutOptionsFunction(function(self)
 	return 'shape', {
 		type = 'select',
@@ -641,241 +909,6 @@ PitBull4_CapsuleSkin:SetLayoutOptionsFunction(function(self)
 			PitBull4.Options.UpdateFrames(self)
 		end,
 		order = 2,
-	},
-	'mask_portrait', {
-		type = 'toggle',
-		name = L["Circular 2D portrait mask"],
-		desc = L["Clip 2D or class portraits into a circle (3D models cannot be clipped by MaskTexture)."],
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).mask_portrait
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).mask_portrait = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		order = 3,
-	},
-	'portrait_border', {
-		type = 'toggle',
-		name = L["Portrait ring border"],
-		desc = L["Draw an extra circular border ring around the 2D portrait (off by default to avoid overlapping the capsule border)."],
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).portrait_border
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).portrait_border = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			return not PitBull4.Options.GetLayoutDB(self).mask_portrait
-		end,
-		order = 4,
-	},
-	'floating_portrait', {
-		type = 'toggle',
-		name = L["Floating circular portrait"],
-		desc = L["Extend bars 100% behind the portrait and float the circular portrait on top (Blizzard-style chest-up framing)."],
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).floating_portrait
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).floating_portrait = value
-			local layout = PitBull4.Options.GetCurrentLayout()
-			for frame in PitBull4:IterateFramesForLayout(layout) do
-				frame:UpdateLayout(false)
-			end
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		order = 4.1,
-	},
-	'portrait_scale', {
-		type = 'range',
-		name = L["Portrait diameter"],
-		desc = L["Set the circular portrait diameter relative to the frame height (110% is recommended)."],
-		min = 0.60,
-		max = 2.00,
-		step = 0.05,
-		isPercent = true,
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).portrait_scale or 1.10
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).portrait_scale = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			return not PitBull4.Options.GetLayoutDB(self).floating_portrait
-		end,
-		order = 4.2,
-	},
-	'portrait_x', {
-		type = 'range',
-		name = L["Portrait X offset"],
-		desc = L["Fine-tune the horizontal position of the floating portrait."],
-		min = -30,
-		max = 30,
-		step = 1,
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).portrait_x or 0
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).portrait_x = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			return not PitBull4.Options.GetLayoutDB(self).floating_portrait
-		end,
-		order = 4.3,
-	},
-	'portrait_y', {
-		type = 'range',
-		name = L["Portrait Y offset"],
-		desc = L["Fine-tune the vertical position of the floating portrait."],
-		min = -30,
-		max = 30,
-		step = 1,
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).portrait_y or 0
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).portrait_y = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			return not PitBull4.Options.GetLayoutDB(self).floating_portrait
-		end,
-		order = 4.4,
-	},
-	'elite_dragon', {
-		type = 'toggle',
-		name = L["Elite / Rare dragon overlay"],
-		desc = L["Show Blizzard's gold or silver dragon frame around the portrait for elite, rare, or boss units."],
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).elite_dragon
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).elite_dragon = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		order = 5,
-	},
-	'dragon_style', {
-		type = 'select',
-		name = L["Dragon style"],
-		desc = L["Choose automatic unit classification detection or force a specific dragon frame for this layout."],
-		values = {
-			auto = L["Auto (elite / rare / player)"],
-			gold = L["Always gold dragon"],
-			winged_gold = L["Always winged gold dragon (boss)"],
-			silver = L["Always silver dragon"],
-			none = L["Off"],
-		},
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).dragon_style or "auto"
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).dragon_style = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			return not PitBull4.Options.GetLayoutDB(self).elite_dragon
-		end,
-		order = 6,
-	},
-	'player_dragon', {
-		type = 'toggle',
-		name = L["Show gold dragon on player"],
-		desc = L["When Dragon style is Auto, also display a gold dragon on the player's own portrait."],
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).player_dragon
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).player_dragon = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			local ldb = PitBull4.Options.GetLayoutDB(self)
-			return not ldb.elite_dragon or (ldb.dragon_style and ldb.dragon_style ~= "auto")
-		end,
-		order = 7,
-	},
-	'dragon_scale', {
-		type = 'range',
-		name = L["Dragon scale"],
-		desc = L["Adjust the overall scale of the elite/rare dragon frame."],
-		min = 0.5,
-		max = 2.0,
-		step = 0.05,
-		isPercent = true,
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).dragon_scale or 1.0
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).dragon_scale = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			local ldb = PitBull4.Options.GetLayoutDB(self)
-			return not ldb.elite_dragon or ldb.dragon_style == "none"
-		end,
-		order = 8,
-	},
-	'dragon_x', {
-		type = 'range',
-		name = L["Dragon X offset"],
-		desc = L["Fine-tune the horizontal offset of the dragon frame (positive = right, negative = left)."],
-		min = -40,
-		max = 40,
-		step = 1,
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).dragon_x or 0
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).dragon_x = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			local ldb = PitBull4.Options.GetLayoutDB(self).dragon_style
-			return not PitBull4.Options.GetLayoutDB(self).elite_dragon or ldb == "none"
-		end,
-		order = 9,
-	},
-	'dragon_y', {
-		type = 'range',
-		name = L["Dragon Y offset"],
-		desc = L["Fine-tune the vertical offset of the dragon frame (positive = up, negative = down)."],
-		min = -40,
-		max = 40,
-		step = 1,
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).dragon_y or 0
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).dragon_y = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			local ldb = PitBull4.Options.GetLayoutDB(self)
-			return not ldb.elite_dragon or ldb.dragon_style == "none"
-		end,
-		order = 10,
-	},
-	'dragon_flip', {
-		type = 'toggle',
-		name = L["Flip dragon horizontally"],
-		desc = L["Mirror the dragon frame left/right if its facing direction is reversed."],
-		get = function(info)
-			return PitBull4.Options.GetLayoutDB(self).dragon_flip
-		end,
-		set = function(info, value)
-			PitBull4.Options.GetLayoutDB(self).dragon_flip = value
-			PitBull4.Options.UpdateFrames(self)
-		end,
-		disabled = function(info)
-			local ldb = PitBull4.Options.GetLayoutDB(self).dragon_style
-			return not PitBull4.Options.GetLayoutDB(self).elite_dragon or ldb == "none"
-		end,
-		order = 10.5,
 	},
 	'elite_border_tint', {
 		type = 'toggle',

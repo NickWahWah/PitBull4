@@ -20,25 +20,26 @@ local IndicatorModule = PitBull4:NewModuleType("indicator", {
 --- Call the :GetTexture function on the indicator module regarding the given frame.
 -- @param self the module
 -- @param frame the frame to get the texture of
--- @usage local tex, c1, c2, c3, c4 = call_texture_function(MyModule, someFrame)
--- @return texture the path to the texture to show
+-- @usage local tex, is_atlas = call_texture_function(MyModule, someFrame)
+-- @return texture the path or atlas name to show
+-- @return is_atlas truthy if texture is an atlas name
 local function call_texture_function(self, frame)
 	if not self.GetTexture then
 		-- no function, let's just return
 		return nil
 	end
-	local tex
+	local tex, is_atlas
 	if frame.unit and UnitExists(frame.unit) then
-		tex = self:GetTexture(frame)
+		tex, is_atlas = self:GetTexture(frame)
 	end
 	if not tex and frame.force_show and self.GetExampleTexture then
-		tex = self:GetExampleTexture(frame)
+		tex, is_atlas = self:GetExampleTexture(frame)
 	end
 	if not tex then
 		return nil
 	end
 
-	return tex
+	return tex, is_atlas
 end
 
 --- Call the :GetTexCoord function on the indicator module regarding the given frame.
@@ -107,7 +108,7 @@ function IndicatorModule:UpdateFrame(frame)
 		expect(frame, 'typeof', 'frame')
 	end
 
-	local tex = call_texture_function(self, frame)
+	local tex, is_atlas = call_texture_function(self, frame)
 	if not tex then
 		return self:ClearFrame(frame)
 	end
@@ -126,9 +127,12 @@ function IndicatorModule:UpdateFrame(frame)
 		control:SetScript("OnLeave",self.OnLeave)
 	end
 
-	control:SetTexture(tex)
-
-	control:SetTexCoord(call_tex_coord_function(self, frame, tex))
+	if is_atlas then
+		control:SetAtlas(tex, false)
+	else
+		control:SetTexture(tex)
+		control:SetTexCoord(call_tex_coord_function(self, frame, tex))
+	end
 
 	control:Show()
 
