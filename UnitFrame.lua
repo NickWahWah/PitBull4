@@ -426,6 +426,11 @@ local function register_for_clicks_helper(frame, clicks)
 end
 register_for_clicks_helper = PitBull4:OutOfCombatWrapper(register_for_clicks_helper)
 
+local function set_clamped_to_screen_helper(frame, clamped)
+	frame:SetClampedToScreen(clamped)
+end
+set_clamped_to_screen_helper = PitBull4:OutOfCombatWrapper(set_clamped_to_screen_helper)
+
 --- Add the proper functions and scripts to a SecureUnitButton, as well as some various initialization.
 -- @param frame a Button which inherits from SecureUnitButton
 -- @param isExampleFrame whether the button is an example frame, thus not a real unit frame
@@ -494,7 +499,11 @@ function PitBull4:ConvertIntoUnitFrame(frame, isExampleFrame)
 	end
 	frame:RefreshVehicle()
 
-	frame:SetClampedToScreen(true)
+	if isExampleFrame or frame:CanChangeAttribute() then
+		frame:SetClampedToScreen(true)
+	else
+		set_clamped_to_screen_helper(frame, true)
+	end
 
 	if frame.is_singleton then
 		if not frame.classification_db.click_through then
