@@ -82,7 +82,7 @@ local function get_aura_list(list, unit, db, is_buff, frame)
 		list[i] = nil
 	end
 
-	return list
+	return list, ok
 end
 
 -- Fills up to the maximum number of auras with sample auras
@@ -355,7 +355,7 @@ local function update_auras(frame, db, is_buff)
 	local is_friend = unit and UnitIsFriend("player", unit)
 	local max_auras = is_buff and db.max_buffs or db.max_debuffs
 
-	get_aura_list(list, unit, db, is_buff, frame)
+	local _, aura_ok = get_aura_list(list, unit, db, is_buff, frame)
 
 	-- If weapons are enabled and the unit is the player
 	-- copy the weapon entries into the aura list
@@ -401,6 +401,8 @@ local function update_auras(frame, db, is_buff)
 	for i = buff_count + 1, #controls do
 		controls[i] = controls[i]:Delete()
 	end
+
+	return unit and not aura_ok and not frame.force_show
 end
 
 local function clear_auras(frame, is_buff)
@@ -436,8 +438,9 @@ function PitBull4_Aura:UpdateAuras(frame)
 	end
 
 	-- Buffs
+	local use_buff_secure = false
 	if db.enabled_buffs then
-		update_auras(frame, db, true)
+		use_buff_secure = update_auras(frame, db, true)
 	else
 		clear_auras(frame, true)
 	end
@@ -446,13 +449,18 @@ function PitBull4_Aura:UpdateAuras(frame)
 	end
 
 	-- Debuffs
+	local use_debuff_secure = false
 	if db.enabled_debuffs then
-		update_auras(frame, db, false)
+		use_debuff_secure = update_auras(frame, db, false)
 	else
 		clear_auras(frame, false)
 	end
 	if highlight then
 		self:HighlightFilterIterator(frame, db, false)
+	end
+
+	if self.UpdateSecureContainers then
+		self:UpdateSecureContainers(frame, db, use_buff_secure, use_debuff_secure)
 	end
 
 	-- Finish the Highlight Filter System

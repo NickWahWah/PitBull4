@@ -13,5 +13,6 @@
 	<Script file="Layout.lua"/>
 	<Script file="Skin.lua"/>
 	<Script file="Options.lua"/>
+	<Script file="SecureAuraContainer.lua"/>
 
 </Ui>

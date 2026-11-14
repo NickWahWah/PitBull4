@@ -60,6 +60,9 @@ end
 
 function PitBull4_Aura:ClearFrame(frame)
 	self:ClearAuras(frame)
+	if self.ClearSecureContainers then
+		self:ClearSecureContainers(frame)
+	end
 	if frame.aura_highlight then
 		frame.aura_highlight = frame.aura_highlight:Delete()
 	end
