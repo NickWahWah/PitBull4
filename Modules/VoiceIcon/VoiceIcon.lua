@@ -83,7 +83,7 @@ function PitBull4_VoiceIcon:UpdateFrame(frame)
 		self:ClearFrame(frame)
 	end
 
-	if not frame.unit or not UnitInAnyGroup(frame.unit) then
+	if not frame.unit or not frame.guid or issecretvalue(frame.guid) or not UnitInAnyGroup(frame.unit) then
 		return self:ClearFrame(frame)
 	end
 

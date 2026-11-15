@@ -1178,10 +1178,11 @@ function PitBull4_LuaTexts:GROUP_ROSTER_UPDATE(event)
 			unit = prefix .. i
 		end
 		local guid = UnitGUID(unit)
-		group_members[unit] = guid
-
-		if guid then
+		if guid and not issecretvalue(guid) then
+			group_members[unit] = guid
 			tmp[guid] = true
+		else
+			group_members[unit] = nil
 		end
 	end
 

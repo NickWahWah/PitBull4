@@ -63,13 +63,15 @@ function PitBull4_PowerBar:GetValue(frame)
 	local unit = frame.unit
 	local layout_db = self:GetLayoutDB(frame)
 
-	if layout_db.hide_no_mana and UnitPowerType(unit) ~= 0 then
-		return nil
-	else
-		local max = UnitPowerMax(unit)
-		if layout_db.hide_no_power and not issecretvalue(max) and max <= 0 then
+	if layout_db.hide_no_mana then
+		local power_type = UnitPowerType(unit)
+		if power_type and not issecretvalue(power_type) and power_type ~= 0 then
 			return nil
 		end
+	end
+	local max = UnitPowerMax(unit)
+	if layout_db.hide_no_power and not issecretvalue(max) and max <= 0 then
+		return nil
 	end
 
 	return UnitPowerPercent(unit)
@@ -82,11 +84,12 @@ end
 function PitBull4_PowerBar:GetColor(frame, value)
 	local unit = frame.unit
 	local power_type, power_token, r, g, b = UnitPowerType(unit)
-	local color = PitBull4.PowerColors[power_token]
+	local color = power_token and not issecretvalue(power_token) and PitBull4.PowerColors[power_token]
 
 	if not color then
 		if not r then
-			color = PitBull4.PowerColors[type_to_token[power_type]] or PitBull4.PowerColors.MANA
+			local token = power_type and not issecretvalue(power_type) and type_to_token[power_type]
+			color = (token and PitBull4.PowerColors[token]) or PitBull4.PowerColors.MANA
 			r, g, b = color[1], color[2], color[3]
 		end
 	else
@@ -102,7 +105,7 @@ function PitBull4_PowerBar:GetTexture(frame)
 	if not self:GetLayoutDB(frame).use_atlas then return end
 
 	local _, power_token = UnitPowerType(frame.unit)
-	local atlas = power_bar_atlas[power_token]
+	local atlas = power_token and not issecretvalue(power_token) and power_bar_atlas[power_token]
 	if atlas then
 		return atlas, true
 	end
@@ -111,6 +114,10 @@ end
 function PitBull4_PowerBar:UNIT_POWER_FREQUENT(_, unit, power_type)
 	if not unit then return end
 	local _, power_token = UnitPowerType(unit)
+	if issecretvalue(power_token) or issecretvalue(power_type) then
+		units_to_update[unit] = true
+		return
+	end
 	-- fix units that have a special power type but update as ENERGY
 	if not PowerBarColor[power_token] then
 		power_token = "ENERGY"

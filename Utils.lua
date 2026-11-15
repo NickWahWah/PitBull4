@@ -262,6 +262,9 @@ end
 -- @usage PitBull4.Utils.GetMobIDFromGuid("0xF13000046514911F") == 1125
 -- @usage PitBull4.Utils.GetMobIDFromGuid("F13000046514911F") == 1125
 function PitBull4.Utils.GetMobIDFromGuid(guid)
+	if not guid or issecretvalue(guid) then
+		return nil
+	end
 	if DEBUG then
 		expect(guid, 'typeof', 'string')
 	end
@@ -276,13 +279,16 @@ end
 -- @return one of "worldboss", "elite", "rareelite", "rare", "normal", "trivial", or "minus"
 function PitBull4.Utils.BetterUnitClassification(unit)
 		local classification = UnitClassification(unit)
+		if not classification or issecretvalue(classification) then
+			return "normal"
+		end
 
 		if not LibBossIDs or classification == "worldboss" or classification == "normal" or classification == "minus" or classification == "trivial" then
 			return classification
 		end
 
 		local guid = UnitGUID(unit)
-		if not guid then
+		if not guid or issecretvalue(guid) then
 			return classification
 		end
 

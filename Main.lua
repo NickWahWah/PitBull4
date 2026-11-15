@@ -796,7 +796,7 @@ local function guid_iter(guid, frame)
 	if not frame then
 		return nil
 	end
-	if frame.guid == guid then
+	if not issecretvalue(frame.guid) and not issecretvalue(guid) and frame.guid == guid then
 		return frame
 	end
 	return guid_iter(guid, frame)
@@ -813,7 +813,7 @@ function PitBull4:IterateFramesForGUID(guid)
 		expect(guid, 'typeof', 'string;nil')
 	end
 
-	if not guid then
+	if not guid or issecretvalue(guid) then
 		return do_nothing
 	end
 
@@ -826,7 +826,7 @@ local function guids_iter(guids, frame)
 		del(guids)
 		return nil
 	end
-	if guids[frame.guid] then
+	if frame.guid and not issecretvalue(frame.guid) and guids[frame.guid] then
 		return frame
 	end
 	return guids_iter(guids, frame)
@@ -846,7 +846,7 @@ function PitBull4:IterateFramesForGUIDs(...)
 			expect(guid, 'typeof', 'string;nil')
 		end
 
-		if guid then
+		if guid and not issecretvalue(guid) then
 			guids[guid] = true
 		end
 	end
@@ -867,7 +867,7 @@ local function name_iter(state, frame)
 	local name,server = state.name, state.server
 	if frame.guid and frame.unit then
 		local frame_name, frame_server = UnitName(frame.unit)
-		if frame_name == name and (not server and server ~= "" or server == frame_server) then
+		if not issecretvalue(frame_name) and not issecretvalue(frame_server) and frame_name == name and (not server and server ~= "" or server == frame_server) then
 			return frame
 		end
 	end

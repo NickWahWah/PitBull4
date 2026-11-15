@@ -67,7 +67,7 @@ function PitBull4_Background:UpdateFrame(frame)
 		frame.PortraitBG = portrait
 	end
 
-	local should_update = created or (not issecretvalue(frame.guid) and not issecretvalue(portrait.guid) and portrait.guid ~= frame.guid)
+	local should_update = created or issecretvalue(frame.guid) or issecretvalue(portrait.guid) or portrait.guid ~= frame.guid
 	if should_update then
 		portrait:ClearModel()
 		if not falling_back then

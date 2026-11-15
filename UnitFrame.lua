@@ -314,7 +314,7 @@ function UnitFrame__scripts:OnAttributeChanged(key, value)
 		-- normally.
 		if self:IsVisible() then
 			local guid = new_unit and UnitGUID(new_unit) or nil
-			if issecretvalue(guid) or guid ~= self.guid then
+			if issecretvalue(guid) or issecretvalue(self.guid) or guid ~= self.guid then
 				self.unit = new_unit -- Make sure unit is set before updates happen.
 				updated = true
 				self:UpdateGUID(guid)
@@ -375,7 +375,7 @@ end
 function UnitFrame__scripts:OnShow()
 	if self.unit then
 		local guid = UnitGUID(self.unit)
-		if self.is_wacky or issecretvalue(guid) or guid ~= self.guid then
+		if self.is_wacky or issecretvalue(guid) or issecretvalue(self.guid) or guid ~= self.guid then
 			self:UpdateGUID(guid)
 		end
 	end
@@ -828,7 +828,7 @@ function UnitFrame:UpdateGUID(guid, update)
 	self.guid = guid
 	if update ~= false then
 		if issecretvalue(guid) or issecretvalue(old_guid) then
-			self:Update(not self.is_wacky)
+			self:Update(false)
 		else
 			self:Update(old_guid == guid)
 		end

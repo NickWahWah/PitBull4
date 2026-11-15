@@ -276,7 +276,7 @@ local function HostileColor(unit)
 			r, g, b = unpack(PitBull4.ReactionColors.tapped)
 		else
 			local reaction = UnitReaction(unit, "player")
-			if reaction then
+			if reaction and not issecretvalue(reaction) then
 				if reaction >= 5 then
 					r, g, b = unpack(PitBull4.ReactionColors[FRIENDLY_REACTION])
 				elseif reaction == 4 then
@@ -295,7 +295,7 @@ ScriptEnv.HostileColor = HostileColor
 
 local function ClassColor(unit)
 	local _, class = UnitClass(unit)
-	local color = PitBull4.ClassColors[class] or PitBull4.ClassColors.UNKNOWN
+	local color = (class and not issecretvalue(class) and PitBull4.ClassColors[class]) or PitBull4.ClassColors.UNKNOWN
 	return color[1] * 255, color[2] * 255, color[3] * 255
 end
 ScriptEnv.ClassColor = ClassColor
@@ -307,7 +307,7 @@ local function Level(unit)
 		end
 	end
 	local level = UnitLevel(unit)
-	if level <= 0 then
+	if level and not issecretvalue(level) and level <= 0 then
 		level = "??"
 	end
 	return level
@@ -340,7 +340,10 @@ local classification_lookup = {
 }
 
 local function Classification(unit)
-	return classification_lookup[PitBull4.Utils.BetterUnitClassification(unit)]
+	local classification = PitBull4.Utils.BetterUnitClassification(unit)
+	if classification and not issecretvalue(classification) then
+		return classification_lookup[classification]
+	end
 end
 ScriptEnv.Classification = Classification
 
@@ -365,7 +368,7 @@ ScriptEnv.ShortClassification = ShortClassification
 
 local function Class(unit)
 	local _, _, class_id = UnitClass(unit)
-	if class_id then
+	if class_id and not issecretvalue(class_id) then
 		local class_info = C_CreatureInfo.GetClassInfo(class_id)
 		if class_info and class_info.className then
 			return class_info.className
@@ -392,13 +395,18 @@ local ShortClass_abbrev = {
 }
 
 local function ShortClass(arg)
+	if issecretvalue(arg) then
+		return nil
+	end
 	local short = ShortClass_abbrev[arg]
 	if not short and PitBull4.Utils.GetBestUnitID(arg) then
 		-- If it's empty then maybe arg is a unit
 		local _, class, class_id = UnitClass(arg)
 		if IsPlayer(arg) then
-			short = ShortClass_abbrev[class]
-		elseif class_id then
+			if class and not issecretvalue(class) then
+				short = ShortClass_abbrev[class]
+			end
+		elseif class_id and not issecretvalue(class_id) then
 			local class_info = C_CreatureInfo.GetClassInfo(class_id)
 			if class_info then
 				short = ShortClass_abbrev[class_info.classFile]
@@ -471,11 +479,16 @@ local ShortRace_abbrev = {
 }
 
 local function ShortRace(arg)
+	if issecretvalue(arg) then
+		return nil
+	end
 	local short = ShortRace_abbrev[arg]
 	if not short and PitBull4.Utils.GetBestUnitID(arg) then
 		-- If it's empty then maybe arg is a unit
 		local _, race = UnitRace(arg)
-		short = ShortRace_abbrev[race]
+		if race and not issecretvalue(race) then
+			short = ShortRace_abbrev[race]
+		end
 	end
 	return short
 end
@@ -487,7 +500,8 @@ end
 ScriptEnv.IsPet = IsPet
 
 local function OfflineDuration(unit)
-	local offline = offline_times[unit_guid(unit)]
+	local guid = unit_guid(unit)
+	local offline = guid and not issecretvalue(guid) and offline_times[guid]
 	offline_cache[ScriptEnv.font_string] = true
 	if offline then
 		UpdateIn(0.25)
@@ -506,12 +520,14 @@ ScriptEnv.Offline = Offline
 
 local function IsOffline(unit)
 	offline_cache[ScriptEnv.font_string] = true
-	return not not offline_times[unit_guid(unit)]
+	local guid = unit_guid(unit)
+	return not not (guid and not issecretvalue(guid) and offline_times[guid])
 end
 ScriptEnv.IsOffline = IsOffline
 
 local function DeadDuration(unit)
-	local dead_time = dead_times[unit_guid(unit)]
+	local guid = unit_guid(unit)
+	local dead_time = guid and not issecretvalue(guid) and dead_times[guid]
 	dead_cache[ScriptEnv.font_string] = true
 	if dead_time then
 		UpdateIn(0.25)
@@ -537,7 +553,7 @@ local TREE_OF_LIFE = C_Spell.GetSpellName(33891)
 
 local function DruidForm(unit)
 	local _, class = UnitClass(unit)
-	if class == "DRUID" then
+	if class and not issecretvalue(class) and class == "DRUID" then
 		local power = UnitPowerType(unit)
 		if power == 1 then
 			return L["Bear"]
@@ -545,9 +561,12 @@ local function DruidForm(unit)
 			return L["Cat"]
 		else
 			local i = 1
-			repeat
-				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
-				local name = auraData and auraData.name
+			while true do
+				local ok, auraData = pcall(C_UnitAuras.GetAuraDataByIndex, unit, i, "HELPFUL")
+				if not ok or not auraData then
+					break
+				end
+				local name = auraData.name
 				if name and not issecretvalue(name) then
 					if name == MOONKIN_FORM then
 						return L["Moonkin"]
@@ -558,7 +577,7 @@ local function DruidForm(unit)
 					end
 				end
 				i = i + 1
-			until not auraData
+			end
 		end
 	end
 end
@@ -883,7 +902,7 @@ local function InterruptedBy(interrupted_by)
 		local name = UnitNameFromGUID(interrupted_by)
 		if name then
 			local _, class = UnitClassFromGUID(interrupted_by)
-			local classColor = C_ClassColor.GetClassColor(class)
+			local classColor = class and not issecretvalue(class) and C_ClassColor.GetClassColor(class)
 			if classColor then
 				name = C_ColorUtil.WrapTextInColor(name, classColor)
 			end
@@ -982,10 +1001,13 @@ local power_type_to_string = {
 	[Enum.PowerType.Pain] = "PAIN",
 }
 local function PowerColor(power_type)
+	if not power_type or issecretvalue(power_type) then
+		return 178.5, 178.5, 178.5
+	end
 	if type(power_type) == "number" then
 		power_type = power_type_to_string[power_type]
 	end
-	local color = PitBull4.PowerColors[power_type]
+	local color = power_type and PitBull4.PowerColors[power_type]
 	if not color then
 		return 178.5, 178.5, 178.5
 	end
@@ -994,7 +1016,7 @@ end
 ScriptEnv.PowerColor = PowerColor
 
 local function ReputationColor(reaction)
-	local color = PitBull4.ReactionColors[reaction]
+	local color = reaction and not issecretvalue(reaction) and PitBull4.ReactionColors[reaction]
 	if color then
 		return color[1] * 255, color[2] * 255, color[3] * 255
 	end

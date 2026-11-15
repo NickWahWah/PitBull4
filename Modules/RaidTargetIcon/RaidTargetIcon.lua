@@ -66,7 +66,7 @@ function PitBull4_RaidTargetIcon:UpdateFrame(frame)
 	end
 
 	local index = GetRaidTargetIndex(unit)
-	if index then
+	if index and not issecretvalue(index) then
 		local control, made_control = get_control(frame)
 
 		SetRaidTargetIconTexture(control, index)

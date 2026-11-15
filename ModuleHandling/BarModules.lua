@@ -110,7 +110,7 @@ local function call_color_function(self, frame, bar_db, value, extra, icon)
 			if UnitIsPlayer(unit) or UnitInPartyIsAI(unit) then
 				if bar_db.color_by_class and (bar_db.color_pvp_by_class or UnitIsFriend("player", unit)) then
 					local _, class = UnitClass(unit)
-					local t = PitBull4.ClassColors[class]
+					local t = class and not issecretvalue(class) and PitBull4.ClassColors[class]
 					if t then
 						r, g, b = t[1], t[2], t[3]
 					end

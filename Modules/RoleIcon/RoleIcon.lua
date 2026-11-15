@@ -19,7 +19,7 @@ end
 
 function PitBull4_RoleIcon:GetTexture(frame)
 	local role = UnitGroupRolesAssigned(frame.unit)
-	if role == "NONE" then
+	if not role or issecretvalue(role) or role == "NONE" then
 		return nil
 	end
 
@@ -42,7 +42,7 @@ tex_coords[3] = tex_coords.DAMAGER
 
 function PitBull4_RoleIcon:GetTexCoord(frame)
 	local role = UnitGroupRolesAssigned(frame.unit)
-	local tex_coord = tex_coords[role]
+	local tex_coord = role and not issecretvalue(role) and tex_coords[role]
 	if not tex_coord then
 		return nil
 	end
@@ -52,7 +52,7 @@ end
 
 function PitBull4_RoleIcon:GetExampleTexCoord(frame)
 	local role = UnitGroupRolesAssigned(frame.unit)
-	local tex_coord = tex_coords[role] or tex_coords[math.random(1, 3)]
+	local tex_coord = (role and not issecretvalue(role) and tex_coords[role]) or tex_coords[math.random(1, 3)]
 
 	return tex_coord[1], tex_coord[2], tex_coord[3], tex_coord[4]
 end
