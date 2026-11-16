@@ -19,7 +19,7 @@
    - **Blizzard Gold / Silver Dragon Overlays**: Supports per-layout dragon style (`Auto`, `Gold`, `Winged Gold`, `Silver`, `Off`), scale, X/Y offset, horizontal flip, border thickness (`Thin` / `Normal` / `Thick`), and border gap controls.
    - Full `enUS` and `zhCN` localization.
 3. **Bilingual Built-in Preset (`DefaultProfile_Forever.lua`)**
-   - Automatically initializes both `Default` and `Hunter` profiles on fresh installs (`PitBull4DB == nil`) in English or Chinese matching your client locale, with zero personal character/realm data included.
+   - Automatically initializes both `Default` and `Hunter` profiles on fresh installs (`PitBull4DB == nil`) in English or Chinese matching your client locale.
 
 ## Installation
 
@@ -30,11 +30,9 @@
 
 - **Pet Happiness Icon (`HappinessIcon_Classic`)**: Not yet fixed. On WoW Forever (`16001`, 12.x engine), `_G.GetPetHappiness` is not available, so the pet happiness icon does not display yet (nil-guarded to prevent Lua errors).
 
-## Credits & Attribution / 版权声明与致谢
+## Credits & Attribution
 
-> **Disclaimer / 声明**: This is an **unofficial, non-commercial community port & modification** specifically adapted for **WoW Forever (`16001` / Camelot)**. It is **NOT** an official release and does **NOT** claim ownership of the original PitBull4 codebase. All original credits, copyrights, and upstream project IDs belong strictly to the original authors. If the original authors have any concerns, please open an issue or contact the maintainer for immediate resolution.
->
-> 本项目为针对《魔兽世界》Forever (`16001` / Camelot) 客户端的**非官方开源社区适配修改版**，并非原版作者发布，亦不用于任何商业用途或冒充原作者。原版代码的全部著作权与荣誉均归属于原作者团队；若原作者认为存在任何不妥之处，请联系维护者立即处理。
+> **Disclaimer**: This is an **unofficial, non-commercial community port & modification** specifically adapted for **WoW Forever (`16001` / Camelot)**. It is **NOT** an official release and does **NOT** claim ownership of the original PitBull4 codebase. All original credits, copyrights, and upstream project IDs belong strictly to the original authors. If the original authors have any concerns, please open an issue or contact the maintainer for immediate resolution.
 
 - Upstream PitBull4 authors: **ckknight, Shefki, Nebula** ([nebularg/PitBull4](https://github.com/nebularg/PitBull4))
 - Original CurseForge Project ID: `7522` | Original Wago ID: `LvNAmONo`
