@@ -75,6 +75,12 @@ local DEFAULT_LSM_FONT = "Arial Narrow"
 if LibSharedMedia and not LibSharedMedia:IsValid("font", DEFAULT_LSM_FONT) then -- non-Western languages
 	DEFAULT_LSM_FONT = LibSharedMedia:GetDefault("font")
 end
+if LibSharedMedia then
+	LibSharedMedia:Register("statusbar", "Aluminium", [[Interface\AddOns\PitBull4\Media\Statusbar\Aluminium]])
+	LibSharedMedia:Register("statusbar", "BantoBar", [[Interface\AddOns\PitBull4\Media\Statusbar\BantoBar]])
+	LibSharedMedia:Register("statusbar", "Skyline", [[Interface\AddOns\PitBull4\Media\Statusbar\bar_skyline]])
+	LibSharedMedia:Register("statusbar", "AlwaysWork", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
+end
 
 local CURRENT_CONFIG_VERSION = 9
 
