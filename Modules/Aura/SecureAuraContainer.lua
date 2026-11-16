@@ -112,9 +112,23 @@ local function create_aura_button_init(container, is_buff, frame)
 		time:SetPoint("CENTER", 0, 0)
 		button.Time = time
 		if show_builtin_cd then
+			time:SetText("")
 			time:Hide()
+			if button.SetDurationText then
+				pcall(button.SetDurationText, button, nil)
+			end
 		else
 			cooldown:SetHideCountdownNumbers(true)
+			if cooldown.SetMinimumCountdownDuration then
+				cooldown:SetMinimumCountdownDuration(999999)
+			end
+			hooksecurefunc(cooldown, "SetHideCountdownNumbers", function(cd, hide)
+				if not hide and not cd._pb4_forcing_hide then
+					cd._pb4_forcing_hide = true
+					cd:SetHideCountdownNumbers(true)
+					cd._pb4_forcing_hide = nil
+				end
+			end)
 			cooldown.noCooldownCount = true
 			if button.SetDurationText then
 				button:SetDurationText(time)
